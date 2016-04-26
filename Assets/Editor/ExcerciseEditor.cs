@@ -14,4 +14,13 @@ public class ExcerciseEditor : Editor {
 		return so as Exercise;
 	}
 
+	[MenuItem("Assets/Create/Level")]
+	public static Level CreateLevelAsset(){
+
+		ScriptableObject so = ScriptableObject.CreateInstance<Level> ();
+		ProjectWindowUtil.CreateAsset(so, "New Level.asset");
+		Selection.activeObject = so;  
+
+		return so as Level;
+	}
 }
