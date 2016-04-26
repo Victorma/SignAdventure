@@ -35,12 +35,22 @@ public class RecordingControls : MonoBehaviour {
     }
   }
 
+	private IEnumerator BeginRecording(){
+
+		yield return new WaitForSeconds (2f);
+
+		HandController.Main.ResetRecording();
+		HandController.Main.Record();
+		recordingGui.text = "started";
+	}
+
   private void allowBeginRecording() {
+
+
+	
     if (controlsGui != null) controlsGui.text += beginRecordingKey + " - Begin Recording\n";
     if (Input.GetKeyDown(beginRecordingKey)) {
-      HandController.Main.ResetRecording();
-      HandController.Main.Record();
-      recordingGui.text = "";
+			StartCoroutine (BeginRecording());
     }
   }
 

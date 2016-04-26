@@ -50,7 +50,7 @@ public class GeometricalMatcher : TemplateMatcher {
 			
 			min = Mathf.Min(min, Mathf.Min(this.gestureDistance(gesture, trainingGesture, i), this.gestureDistance(trainingGesture, gesture, i)));
 		}
-		
+		Debug.Log ("MIN: " + min);
 		return min;
 	}
 		
@@ -65,35 +65,42 @@ public class GeometricalMatcher : TemplateMatcher {
 	float gestureDistance (List<Point> gesture1, List<Point>gesture2, int start) {
 			
 		var p1l = gesture1.Count;
+		var p2l = gesture2.Count;
 		
-		var matched = new List<bool>(p1l);
-		int i = start, index;
-		float sum = 0, min, d;
-		
-		do {
-			
-			index = -1;
-			min = float.NegativeInfinity;
-			
-			for (var j = 0; j < p1l; j++) {
+		var matched = new bool[p1l];
+		int i = start, index = -1;
+		float sum = 0, min, d = 0;
+		try{
+			do {
 				
-				if (!matched[j]) {
+				index = -1;
+				min = float.PositiveInfinity;
+				
+				for (var j = 0; j < p1l; j++) {
 					
-					//if (gesture1[i] == null || gesture2[j] == null) { continue; }
-					
-					d = Point.Distance(gesture1[i], gesture2[j]);
-					
-					if (d < min) { min = d; index = j; }
+					if (!matched[j]) {
+						
+						if (i >= p1l || j >= p2l) { continue; }
+						
+						d = Point.Distance(gesture1[i], gesture2[j]);
+						
+						if (d < min) { min = d; index = j; }
+					}
 				}
-			}
-			
-			matched[index] = true;
-			
-			sum += (1 - ((i - start + p1l) % p1l) / p1l) * min;
-			
-			i = (i + 1) % p1l;
-			
-		} while (i != start);
+
+				if(index != -1)
+					matched[index] = true;
+				
+				sum += (1 - ((i - start + p1l) % p1l) / p1l) * min;
+				
+				i = (i + 1) % p1l;
+				
+			} while (i != start);
+		}catch(System.Exception e){
+			Debug.Log ("Index: " + index + " p1l: " + p1l);
+			Debug.Log (e.ToString());
+
+		}
 		
 		return sum;
 	}

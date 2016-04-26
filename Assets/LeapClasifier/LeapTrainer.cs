@@ -12,13 +12,15 @@ using System.Collections.Generic;
  */
 public class LeapTrainer : MonoBehaviour {
 
+	public HandController handController;
+
 	/**
 	 * Events Adapted to C#
 	 */
 
 	public delegate void StartedRecordingDelegate();
 	public delegate void EndedRecordingDelegate();
-	public delegate void GestureDetectedDelegate();
+	public delegate void GestureDetectedDelegate(List<Point> points, int frameCount);
 	public delegate void GestureCreatedDelegate(string name, bool trainingSkipped);
 	public delegate void GestureRecognizedDelegate(string name, float value, Dictionary<string,float> allHits);
 	public delegate void GestureUnknownDelegate(Dictionary<string,float> allHits);
@@ -49,34 +51,34 @@ public class LeapTrainer : MonoBehaviour {
 
 	bool pauseOnWindowBlur = false; // If this is TRUE, then recording and recognition are paused when the window loses the focus, and restarted when it's regained
 		
-	float minRecordingVelocity = 300f; // The minimum velocity a frame needs to clock in at to trigger gesture recording, or below to stop gesture recording (by default)
-	float maxRecordingVelocity = 30f;  // The maximum velocity a frame can measure at and still trigger pose recording, or above which to stop pose recording (by default)
+	public float minRecordingVelocity = 300f; // The minimum velocity a frame needs to clock in at to trigger gesture recording, or below to stop gesture recording (by default)
+	public float maxRecordingVelocity = 30f;  // The maximum velocity a frame can measure at and still trigger pose recording, or above which to stop pose recording (by default)
 		
-	int minGestureFrames = 5;	// The minimum number of recorded frames considered as possibly containing a recognisable gesture 
-	int minPoseFrames = 75;	    // The minimum number of frames that need to hit as recordable before pose recording is actually triggered
-	int frameCount = 0; 		// The actual frame count	
+	public int minGestureFrames = 5;	// The minimum number of recorded frames considered as possibly containing a recognisable gesture 
+	public int minPoseFrames = 75;	    // The minimum number of frames that need to hit as recordable before pose recording is actually triggered
+	public int frameCount = 0; 		// The actual frame count	
 
 	int recordedPoseFrames = 0;	// A counter for recording how many pose frames have been recorded before triggering
 	bool recordingPose = false; // A flag to indicate if a pose is currently being recorded
 	bool recording = false; 	// Variable to know if there is recording a gesture
 		
-	float hitThreshold = 0.65f;	// The correlation output value above which a gesture is considered recognized. Raise this to make matching more strict
+	public float hitThreshold = 0.65f;	// The correlation output value above which a gesture is considered recognized. Raise this to make matching more strict
 		
 	int trainingCountdown = 3;	// The number of seconds after startTraining is called that training begins. This number of 'training-countdown' events will be emit.
 	int trainingGestures = 1;	// The number of gestures samples that collected during training
 	int convolutionFactor = 0;	// The factor by which training samples will be convolved over a gaussian distribution to expand the available training data
 		
-	float downtime = 1000f; // The number of milliseconds after a gesture is identified before another gesture recording cycle can begin
-	float lastHit = 0;	 // The timestamp at which the last gesture was identified (recognized or not), used when calculating downtime
+	public float downtime = 1000f; // The number of milliseconds after a gesture is identified before another gesture recording cycle can begin
+	public float lastHit = 0;	 // The timestamp at which the last gesture was identified (recognized or not), used when calculating downtime
 		
 	private Dictionary<string, List<List<Point>>> gestures = new Dictionary<string, List<List<Point>>>(); // The current set of recorded gestures - names mapped to convolved training data
 	private Dictionary<string, bool> poses = new Dictionary<string, bool>();	  // Though all gesture data is stored in the gestures object, here we hold flags indicating which gestures were recorded as poses
 	private List<Point> gesture = null;				      	      // Actual recording gesture
 		
-	string trainingGesture	= null; // The name of the gesture currently being trained, or null if training is not active
+	string trainingGesture	= ""; // The name of the gesture currently being trained, or null if training is not active
 	//listeners				= {};	// Listeners registered to receive events emit from the trainer - event names mapped to arrays of listener functions
 		
-	bool paused	= false; // This variable is set by the pause() method and unset by the resume() method - when true it disables frame monitoring temporarily.
+	public bool paused	= false; // This variable is set by the pause() method and unset by the resume() method - when true it disables frame monitoring temporarily.
 		
 	//renderableGesture = null; // Implementations that record a gestures for graphical rendering should store the data for the last detected gesture in this array.
 		
@@ -100,24 +102,21 @@ public class LeapTrainer : MonoBehaviour {
 		this.templateMatcher = new GeometricalMatcher();
 			
 		/*
-		 * If no Leap.Controller object was passed on the options array one is created
+		 * Getting Leap.Controller reference from the hand controller.
 		 */
-			
-		if (controller == null) { 
-			this.controller = new Controller (); 
-		} else {
-			this.controller = controller;
-		}
-			
+		this.controller = handController.GetLeapController ();
+
 		/*
 		 * The bindFrameListener attaches a function to the leap controller frame event below.
 		 */
 		this.bindFrameListener();
 			
-		/*
-		 * Finally, if no Leap.Controller was passed as a parameter to the trainer constructor, we connect to the device.
-		 */
-		//if (connectController) { this.controller.connect(); };
+
+	}
+
+	private float time;
+	void Update(){
+		time = Time.time;
 	}
 
 	private class TrainerListener : Listener {
@@ -156,7 +155,7 @@ public class LeapTrainer : MonoBehaviour {
 		/*
  		 * Frames are ignored if they occur too soon after a gesture was recognized.
  		 */
-		if (Time.time - this.lastHit < this.downtime) { return; }
+		if (this.time - this.lastHit < this.downtime) { return; }
 		
 		/*
 		 * The recordableFrame function returns true or false - by default based on the overall velocity of the hands and pointables in the frame.  
@@ -167,7 +166,8 @@ public class LeapTrainer : MonoBehaviour {
 		 * called to see what it can do with the collected frames.
 		 * 
 		 */
-		if (this.recordableFrame(frame, this.minRecordingVelocity, this.maxRecordingVelocity)) {
+
+		if (this.recordableFrame (frame, this.minRecordingVelocity, this.maxRecordingVelocity)) {
 			
 			/*
 			 * If this is the first frame in a gesture, we clean up some running values and fire the 'started-recording' event.
@@ -192,7 +192,7 @@ public class LeapTrainer : MonoBehaviour {
 			 * The recordFrame function may be overridden, but in any case it's passed the current frame, the previous frame, and 
 			 * utility functions for adding vectors and individual values to the recorded gesture activity.
 			 */
-			this.recordFrame(frame, this.controller.Frame(1));
+			this.recordFrame(frame, this.controller.Frame());
 			
 			/*
 		     * Since renderable frame data is not necessarily the same as frame data used for recognition, a renderable frame will be 
@@ -201,7 +201,7 @@ public class LeapTrainer : MonoBehaviour {
 			//this.recordRenderableFrame(frame, this.controller.Frame(1));
 			
 		} else if (recording) {
-			
+
 			/*
 			 * If the frame should not be recorded but recording was active, then we deactivate recording and check to see if enough 
 			 * frames have been recorded to qualify for gesture recognition.
@@ -218,7 +218,7 @@ public class LeapTrainer : MonoBehaviour {
 				/*
 				 * If a valid gesture was detected the 'gesture-detected' event fires, regardless of whether the gesture will be recognized or not.
 				 */
-				//if(OnGestureDetected != null) OnGestureDetected(gesture, frameCount);
+				if(OnGestureDetected != null) OnGestureDetected(gesture, frameCount);
 				
 				/*
 				 * Finally we pass the recorded gesture frames to either the saveTrainingGesture or recognize functions (either of which may also 
@@ -227,12 +227,12 @@ public class LeapTrainer : MonoBehaviour {
 				 */
 
 				if (trainingGesture != "") { 
-					this.saveTrainingGesture(trainingGesture, gesture, this.recordingPose);
+					//this.saveTrainingGesture(trainingGesture, gesture, this.recordingPose);
 				} else { 
 					this.recognize(gesture, frameCount); 
 				}
 				
-				this.lastHit = Time.time;
+				this.lastHit = this.time;
 			}
 		}
 	}
@@ -509,6 +509,22 @@ public class LeapTrainer : MonoBehaviour {
 			trainingGestures[i] = this.templateMatcher.process(trainingGestures[i]);
 		}		
 	}
+
+	public void loadFromFrames(string gestureName, List<Frame> frames, bool isPose){
+		
+		List<Point> bcgesture = gesture;
+		gesture = new List<Point> ();
+
+		Frame lf = null;
+		foreach (var f in frames) {
+			if (lf == null) lf = f;
+			else this.recordFrame (f, lf);
+		}
+		
+		saveTrainingGesture (gestureName, gesture, isPose);
+
+		gesture = bcgesture;
+	}
 		
 	/**
 	 * The saveTrainingGesture function records a single training gesture.  If the number of saved training gestures has reached 
@@ -524,8 +540,14 @@ public class LeapTrainer : MonoBehaviour {
 		/*
 	 	* We retrieve all gestures recorded for this gesture name so far
 	 	*/
-		var trainingGestures = this.gestures[gestureName];
+
+		List<List<Point>> trainingGestures = null;
 		
+		if (!this.gestures.TryGetValue (gestureName, out trainingGestures)) {
+			trainingGestures = new List<List<Point>> ();
+		}
+		
+
 		/*
 		 * Save the newly recorded gesture data
 		 */
@@ -888,7 +910,7 @@ public class LeapTrainer : MonoBehaviour {
 	 * This function unbinds the controller from the leap frame event cycle - making it inactive and ready 
 	 * for cleanup.
 	 */
-	void destroy() { 
-	this.listener.Release();
+	void OnDestroy() { 
+		this.listener.Release();
 	}
 }
