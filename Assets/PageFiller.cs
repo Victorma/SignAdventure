@@ -8,6 +8,8 @@ public class PageFiller : MonoBehaviour {
 	private const string emptyStar = "";
 	private const int numStars = 3;
 
+	public GameObject play;
+	public GameObject playTitle;
 
 	public GameObject exercisePrefab;
 
@@ -59,10 +61,32 @@ public class PageFiller : MonoBehaviour {
 			}
 
 			train.onClick.RemoveAllListeners ();
-			train.GetComponent<Button> ().onClick.AddListener(() => Debug.Log("trainlevel"));
+			train.GetComponent<Button> ().onClick.AddListener(() => {
+
+				StartCoroutine(StartLevel(true));
+				Debug.Log("trainlevel");
+
+			});
 
 			exam.onClick.RemoveAllListeners ();
 			exam.GetComponent<Button> ().onClick.AddListener(() => Debug.Log("examlevel"));
 		}
+	}
+
+	private IEnumerator StartLevel(bool train){
+
+		GameObject titleClone = GameObject.Instantiate (title.gameObject);
+		titleClone.transform.parent = play.transform;
+		titleClone.transform.position = title.gameObject.transform.position;
+		titleClone.transform.rotation = title.gameObject.transform.rotation;
+		titleClone.transform.localScale = title.transform.lossyScale;
+		title.gameObject.SetActive (false);
+
+		FlyTo ft = titleClone.AddComponent<FlyTo> ();
+		ft.destination = playTitle.transform;
+
+		ParticleSystem.EmissionModule emission = titleClone.GetComponent<ParticleSystem> ().emission;
+		emission.enabled = true;
+		return null;
 	}
 }
