@@ -6,9 +6,14 @@ public class LevelScript : MonoBehaviour {
 
 	public Image starPrefab;
 
+    public PageFiller pageFiller;
+    public MenuReferences menu;
+
 	public Text title;
 	public Image lockLogo;
 	public GameObject starHolder;
+
+    public Button button;
 
 	public Level level;
 
@@ -26,12 +31,19 @@ public class LevelScript : MonoBehaviour {
 
 		title.text = level.levelName;
 
-		var locked = PlayerPrefs.GetString(level.levelName, "") == "";
+		var locked = PlayerPrefs.GetInt(level.levelName, 0) == 0;
 
 		lockLogo.gameObject.SetActive(locked);
 
 		if(!locked){
 			level.score = PlayerPrefs.GetFloat(level.levelName + "_score", 0.0f);
+
+            button.onClick.AddListener(() =>
+            {
+                pageFiller.level = this.level;
+                menu.setMenu(3);
+
+            });
 
 			if(level.score == 0.0f) {
 			

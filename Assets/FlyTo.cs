@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class FlyTo : MonoBehaviour {
@@ -9,6 +10,9 @@ public class FlyTo : MonoBehaviour {
 
 	private Vector3 direction;
 	public Transform destination;
+
+    public Color destinationColor;
+    public Vector3 destinationScale;
 
 	public float speed = 0.1f;
 	public float distanceToEnd = 0f;
@@ -36,7 +40,10 @@ public class FlyTo : MonoBehaviour {
 		}
 
 		speed = Mathf.Lerp (0f, speed, Mathf.Clamp01 (desiredDirection.magnitude * 2f));
+        this.transform.localScale = Vector3.Lerp(destinationScale, this.transform.localScale, Mathf.Clamp01(desiredDirection.magnitude / 200f));
+        this.GetComponent<Text>().color = Color.Lerp(destinationColor, this.GetComponent<Text>().color, Mathf.Clamp01(desiredDirection.magnitude / 200f));
+        speed = Mathf.Lerp(0f, speed, Mathf.Clamp01(desiredDirection.magnitude * 2f));
 
-		this.transform.position = this.transform.position + direction * speed;
+        this.transform.position = this.transform.position + direction * speed;
 	}
 }

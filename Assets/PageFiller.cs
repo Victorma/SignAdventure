@@ -8,10 +8,15 @@ public class PageFiller : MonoBehaviour {
 	private const string emptyStar = "";
 	private const int numStars = 3;
 
+    public MenuReferences menu;
+
+    public GameObject exPrefab;
+
 	public GameObject play;
 	public GameObject playTitle;
+    public GameObject playExercises;
 
-	public GameObject exercisePrefab;
+    public GameObject exercisePrefab;
 
 	public Level level;
 
@@ -84,9 +89,48 @@ public class PageFiller : MonoBehaviour {
 
 		FlyTo ft = titleClone.AddComponent<FlyTo> ();
 		ft.destination = playTitle.transform;
+        ft.destinationColor = Color.white;
+        ft.destinationScale = new Vector3(1.5f, 1.5f, 1.5f);
 
-		ParticleSystem.EmissionModule emission = titleClone.GetComponent<ParticleSystem> ().emission;
+        ParticleSystem.EmissionModule emission = titleClone.GetComponent<ParticleSystem> ().emission;
 		emission.enabled = true;
-		return null;
+
+
+        int i = 0;
+        foreach(var e in level.exercises)
+        {
+            yield return new WaitForSeconds(0.25f);
+
+            GameObject destination = GameObject.Instantiate(exPrefab);
+            destination.transform.parent = playExercises.transform;
+            destination.transform.localPosition = new Vector3(0, 0, 0);
+            destination.transform.localRotation = Quaternion.Euler(0, 0, 0);
+            destination.transform.localScale = new Vector3(1, 1, 1);
+
+
+            GameObject exerciseGO = exercisesPanel.transform.GetChild(i).gameObject;
+            GameObject exerciseTitleClone = GameObject.Instantiate(exerciseGO);
+            exerciseTitleClone.transform.parent = play.transform;
+            exerciseTitleClone.transform.position = exerciseGO.gameObject.transform.position;
+            exerciseTitleClone.transform.rotation = exerciseGO.gameObject.transform.rotation;
+            exerciseTitleClone.transform.localScale = exerciseGO.transform.lossyScale;
+            exerciseTitleClone.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
+
+            exerciseGO.GetComponent<Text>().enabled = (false);
+
+            FlyTo fly = exerciseTitleClone.AddComponent<FlyTo>();
+            fly.destination = destination.transform;
+            fly.destinationColor = Color.white;
+            fly.destinationScale = new Vector3(1.5f, 1.5f, 1.5f);
+
+            // ParticleSystem.EmissionModule emission = titleClone.GetComponent<ParticleSystem>().emission;
+            // emission.enabled = true;
+            i++;
+        }
+
+
+        menu.setMenu(4);
+
+        yield return new WaitForEndOfFrame();
 	}
 }
