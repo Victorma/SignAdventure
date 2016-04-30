@@ -31,6 +31,9 @@ public class FlyTo : MonoBehaviour {
 		distanceToEnd = desiredDirection.magnitude;
 		if (desiredDirection.magnitude < 0.1f && speed < 0.1f)
 			return;
+		else if (desiredDirection.magnitude > 0.1f && speed < 0.1f) {
+			speed = 0.1f;
+		}
 
 		direction = Vector3.Lerp (desiredDirection.normalized, direction, Mathf.Lerp(1f, resistance, speed / speedCap));
 

@@ -8,7 +8,7 @@ public class PageFiller : MonoBehaviour {
 	private const string emptyStar = "";
 	private const int numStars = 3;
 
-    public MenuReferences menu;
+	public MenuReferences menu;
 
     public GameObject exPrefab;
 
@@ -80,11 +80,17 @@ public class PageFiller : MonoBehaviour {
 
 	private IEnumerator StartLevel(bool train){
 
+		Play plays = play.GetComponent<Play> ();
+		plays.level = level;
+
 		GameObject titleClone = GameObject.Instantiate (title.gameObject);
 		titleClone.transform.parent = play.transform;
 		titleClone.transform.position = title.gameObject.transform.position;
 		titleClone.transform.rotation = title.gameObject.transform.rotation;
 		titleClone.transform.localScale = title.transform.lossyScale;
+
+		plays.floatingTitle = titleClone;
+
 		title.gameObject.SetActive (false);
 
 		FlyTo ft = titleClone.AddComponent<FlyTo> ();
@@ -116,6 +122,8 @@ public class PageFiller : MonoBehaviour {
             exerciseTitleClone.transform.localScale = exerciseGO.transform.lossyScale;
             exerciseTitleClone.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
 
+			plays.floatingExercises.Add (e, exerciseTitleClone);
+
             exerciseGO.GetComponent<Text>().enabled = (false);
 
             FlyTo fly = exerciseTitleClone.AddComponent<FlyTo>();
@@ -129,8 +137,13 @@ public class PageFiller : MonoBehaviour {
         }
 
 
-        menu.setMenu(4);
+		yield return new WaitForSeconds(1f);
+		menu.setMenu(4);
+		yield return new WaitForSeconds(3f);
 
-        yield return new WaitForEndOfFrame();
+		plays.StartTraining ();
+
 	}
+
+
 }
