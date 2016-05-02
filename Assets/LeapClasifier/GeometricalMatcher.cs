@@ -50,7 +50,7 @@ public class GeometricalMatcher : TemplateMatcher {
 			
 			min = Mathf.Min(min, Mathf.Min(this.gestureDistance(gesture, trainingGesture, i), this.gestureDistance(trainingGesture, gesture, i)));
 		}
-		Debug.Log ("MIN: " + min);
+
 		return min;
 	}
 		

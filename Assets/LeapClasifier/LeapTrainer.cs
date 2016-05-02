@@ -775,8 +775,10 @@ public class LeapTrainer : MonoBehaviour {
 				foundMatch = true;
 			}
 		}
+		// Values: 3-6 are accepted
+	    // Values above 6 are rejected		
 		
-		return (!foundMatch) ? 0f : (Mathf.Min(Mathf.Max(100f * Mathf.Max(nearest - 4f) / -4f, 0f), 100f)/100f);
+		return (!foundMatch) ? 0f : Mathf.Max(3f - Mathf.Max(nearest - 3f, 0f), 0f) / 3f;
 	}
 		
 	/**
@@ -912,5 +914,13 @@ public class LeapTrainer : MonoBehaviour {
 	 */
 	void OnDestroy() { 
 		this.listener.Release();
+	}
+
+	/**
+	 * Clean all
+	 */
+	public void Clean() { 
+		this.gestures.Clear ();
+		this.poses.Clear ();
 	}
 }

@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
+using Leap;
 
 public class Tutorial : MonoBehaviour {
 
@@ -51,22 +54,11 @@ public class Tutorial : MonoBehaviour {
 
 		if (playing) {
 			if (!previousPlaying) {
-
 				controller.gameObject.SetActive (true);
-				player.Load (gesture.recording);
 
-				Debug.Log (player.GetFramesCount ());
-				var newFrames = player.GetFrames ();
-				newFrames.RemoveRange (player.GetFramesCount () - 200, 199);
-				player.Reset ();
-				foreach (var f in newFrames)
-					player.AddFrame (f);
-
-				Debug.Log (player.GetFramesCount ());
+				Debug.Log ("Loaded FrameCount: " + player.GetFramesCount ());
 				player.Play ();
 				player.loop = true;
-				if(!trained)
-					trainer.loadFromFrames (gesture.exerciseName, player.GetFrames (), false);
 			}
 
 			teacherImage.gameObject.SetActive (true);
@@ -78,5 +70,22 @@ public class Tutorial : MonoBehaviour {
 		}
 
 		previousPlaying = playing;
+	}
+
+	public void UpdateGesture(){
+		
+		player.Load (gesture.recording);
+
+		Debug.Log (player.GetFramesCount ());
+		var newFrames = player.GetFrames ();
+		newFrames.RemoveRange (player.GetFramesCount () - 200, 199);
+		player.Reset ();
+		foreach (var f in newFrames)
+			player.AddFrame (f);
+
+	}
+
+	public List<Frame> GetFrames(){
+		return player.GetFrames ();
 	}
 }

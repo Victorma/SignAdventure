@@ -7,8 +7,10 @@ public class BackButton : MonoBehaviour {
 
     void OnMouseUpAsButton()
     {
-
-        menu.setMenu(menu.Menu -= 1);
+		if (menu.Menu == 4) {
+			menu.playAnimator.gameObject.GetComponent<Play> ().Abort ();
+		}
+		menu.setMenu(menu.Menu -= 1);
 
     }
 
