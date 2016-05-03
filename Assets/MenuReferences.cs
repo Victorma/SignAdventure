@@ -3,6 +3,7 @@ using System.Collections;
 
 public class MenuReferences : MonoBehaviour {
 
+	public Animator creditsAnimator;
 	public Animator homeAnimator;
 	public Animator startButton;
 	public Animator words;

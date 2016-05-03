@@ -10,7 +10,12 @@ public class BackButton : MonoBehaviour {
 		if (menu.Menu == 4) {
 			menu.playAnimator.gameObject.GetComponent<Play> ().Abort ();
 		}
-		menu.setMenu(menu.Menu -= 1);
+		if (menu.Menu == -1) 
+		{
+			menu.Menu = 0;
+		} else {
+			menu.setMenu(menu.Menu -= 1);
+		}
 
     }
 
