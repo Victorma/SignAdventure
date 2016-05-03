@@ -109,7 +109,7 @@ public class HandController : MonoBehaviour {
   /** The file to record or playback from. */
   public TextAsset recordingAsset;
   /** Playback speed. Set to 1.0 for normal speed. */
-  public float recorderSpeed = 1.0f;
+  public float recorderSpeed = .003f;
   /** Whether to loop the playback. */
   public bool recorderLoop = true;
 

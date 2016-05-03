@@ -5,8 +5,8 @@ using System.Collections;
 public class FlyTo : MonoBehaviour {
 
 	public float randomness = 1f;
-	public float resistance = .98f;
-	public float speedCap = 2f;
+	public float resistance = .92f;
+	public float speedCap = 4f;
 
 	private Vector3 direction;
 	public Transform destination;
@@ -25,7 +25,7 @@ public class FlyTo : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 
 		Vector3 desiredDirection = destination.position - transform.position;
 		distanceToEnd = desiredDirection.magnitude;
@@ -37,7 +37,7 @@ public class FlyTo : MonoBehaviour {
 
 		direction = Vector3.Lerp (desiredDirection.normalized, direction, Mathf.Lerp(1f, resistance, speed / speedCap));
 
-		speed *= 1.01f;
+		speed *= 1.12f;
 		if (speed > speedCap) {
 			speed = speedCap;
 		}

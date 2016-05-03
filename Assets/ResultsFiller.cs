@@ -31,6 +31,7 @@ public class ResultsFiller : MonoBehaviour {
 
 			textName.text = level.levelName;
 			PlayerPrefs.SetFloat(level.levelName + "_score", level.score);
+			PlayerPrefs.Save ();
 			score.text = toStars (level.score);
 
 			while (exercises.transform.childCount > 0) {
@@ -54,6 +55,7 @@ public class ResultsFiller : MonoBehaviour {
 			if (level.unlocks.Length > 0 && PlayerPrefs.GetInt (level.unlocks [0].levelName, 0) == 0) {
 				// Unlock the level
 				PlayerPrefs.SetInt (level.unlocks [0].levelName, 1);
+				PlayerPrefs.Save ();
 				unlocks.gameObject.SetActive (true);
 				unlocksTitle.gameObject.SetActive (true);
 				unlocksTitle.text = level.unlocks [0].levelName;
