@@ -4,14 +4,16 @@ using System.Collections;
 
 public class LevelScript : MonoBehaviour {
 
-	public Image starPrefab;
+	private const string fullStar = "";
+	private const string emptyStar = "";
+	private const int numStars = 3;
 
     public PageFiller pageFiller;
     public MenuReferences menu;
 
 	public Text title;
 	public Image lockLogo;
-	public GameObject starHolder;
+	public Text stars;
 
     public Button button;
 
@@ -45,22 +47,24 @@ public class LevelScript : MonoBehaviour {
 
             });
 
-			if(level.score == 0.0f) {
-			
-				starHolder.SetActive(false);
+			var starNum = Mathf.CeilToInt(level.score * 3);
 
-			}else{
+			stars.text = level.score > 0 ? toStars (level.score) : "";
 
-				var starNum = Mathf.CeilToInt(level.score * 3);
-
-				for(int i = 0; i<starNum; i++){
-
-					var startInstance = GameObject.Instantiate(starPrefab);
-					startInstance.transform.parent = starHolder.transform;
-
-				}
-
-			}
 		}
+	}
+
+	private string toStars(float score){
+		// Convert score into stars
+		string ts = "";
+		float cs = score;
+		while (ts.Length != numStars) {
+			// .1f is the extra help to get all stars
+			cs -= (1f - .1f) / (numStars * 1f);
+
+			if (cs >= 0) ts += fullStar;
+			else 		 ts += emptyStar;
+		}
+		return ts;
 	}
 }

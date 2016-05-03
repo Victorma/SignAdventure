@@ -11,6 +11,11 @@ public class LevelFiller : MonoBehaviour {
 	public Level firstLevel;
     public Level previousValue;
 
+	public void Refresh(){
+		previousValue = null;
+	}
+
+
     // Use this for initialization
     void Start () {
 

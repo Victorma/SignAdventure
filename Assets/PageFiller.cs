@@ -29,13 +29,17 @@ public class PageFiller : MonoBehaviour {
 
 	private Level lastLevel;
 
+	public void Refresh(){
+		lastLevel = null;
+	}
+
 	// Update is called once per frame
 	void Update () {
 		if (lastLevel != level) {
 			lastLevel = level;
 
 			title.text = level.levelName;
-			image.sprite = null; // TODO Level.image
+			image.sprite = level.image;
 
 
 			// Convert score into stars
@@ -53,7 +57,12 @@ public class PageFiller : MonoBehaviour {
 
 			GameObject exins = null;
 
-			foreach (var e in level.exercises) {
+			while (exercisesPanel.transform.childCount > 0)
+				GameObject.DestroyImmediate (exercisesPanel.transform.GetChild (0).gameObject);
+
+			foreach (var e in level.exercises) {	
+				e.score = PlayerPrefs.GetFloat(e.exerciseName + "_ex_score", 0f);
+
 				exins = GameObject.Instantiate (exercisePrefab);
 				exins.GetComponent<Text> ().text = e.exerciseName;
 				exins.GetComponent<Button> ().onClick.AddListener(() => Debug.Log("trainExercise"));
@@ -74,7 +83,12 @@ public class PageFiller : MonoBehaviour {
 			});
 
 			exam.onClick.RemoveAllListeners ();
-			exam.GetComponent<Button> ().onClick.AddListener(() => Debug.Log("examlevel"));
+			exam.GetComponent<Button> ().onClick.AddListener(() => {
+
+				StartCoroutine(StartLevel(false));
+				Debug.Log("examLevel");
+
+			});
 		}
 	}
 
@@ -141,7 +155,22 @@ public class PageFiller : MonoBehaviour {
 		menu.setMenu(4);
 		yield return new WaitForSeconds(3f);
 
-		plays.StartTraining ();
+		if (train) {
+
+			plays.StartTraining ();
+		} else {
+
+			plays.StartExam ();
+		}
+
+	}
+
+	private void FinishFadeOut(){
+		title.gameObject.SetActive(true);
+		for (int i = 0; i < exercisesPanel.transform.childCount; i++) {
+			var child = exercisesPanel.transform.GetChild (i);
+			child.GetComponent<Text> ().enabled = true;
+		}
 
 	}
 

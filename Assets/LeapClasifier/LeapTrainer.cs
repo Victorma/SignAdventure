@@ -229,7 +229,11 @@ public class LeapTrainer : MonoBehaviour {
 				if (trainingGesture != "") { 
 					//this.saveTrainingGesture(trainingGesture, gesture, this.recordingPose);
 				} else { 
-					this.recognize(gesture, frameCount); 
+					try{
+						this.recognize(gesture, frameCount); 
+					}catch(Exception e){
+						Debug.Log (e.Message + " : " + e.StackTrace);
+					}
 				}
 				
 				this.lastHit = this.time;
