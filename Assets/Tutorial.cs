@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using Leap;
+using Leap.Unity;
 
 public class Tutorial : MonoBehaviour {
 
@@ -11,7 +12,7 @@ public class Tutorial : MonoBehaviour {
 	public Exercise gesture;
 
 	public LeapRecorder player;
-	public HandController controller;
+	public RecordedServiceProvider serviceProvider;
 	public UnityEngine.UI.Image teacherImage;
 
 	public LeapTrainer trainer;
@@ -19,7 +20,7 @@ public class Tutorial : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		player = controller.GetLeapRecorder ();
+		player = serviceProvider.GetLeapRecorder();
 		trainer = GetComponent<LeapTrainer> ();
 
 		if (trainer != null) {
@@ -54,7 +55,7 @@ public class Tutorial : MonoBehaviour {
 
 		if (playing) {
 			if (!previousPlaying) {
-				controller.gameObject.SetActive (true);
+                serviceProvider.gameObject.SetActive (true);
 
 				Debug.Log ("Loaded FrameCount: " + player.GetFramesCount ());
 				player.Play ();
@@ -62,11 +63,11 @@ public class Tutorial : MonoBehaviour {
 			}
 
 			teacherImage.gameObject.SetActive (true);
-			teacherImage.sprite = gesture.teacherFrames [Mathf.FloorToInt (Time.time) % 2];
+			teacherImage.sprite = gesture.teacherFrames [Mathf.FloorToInt (Time.time) % gesture.teacherFrames.Length];
 
 		} else {
 			teacherImage.gameObject.SetActive (false);
-			controller.gameObject.SetActive (false);
+            serviceProvider.gameObject.SetActive (false);
 		}
 
 		previousPlaying = playing;
@@ -77,11 +78,11 @@ public class Tutorial : MonoBehaviour {
 		player.Load (gesture.recording);
 
 		Debug.Log (player.GetFramesCount ());
-		var newFrames = player.GetFrames ();
+		/*var newFrames = player.GetFrames ();
 		newFrames.RemoveRange (player.GetFramesCount () - 200, 199);
 		player.Reset ();
 		foreach (var f in newFrames)
-			player.AddFrame (f);
+			player.AddFrame (f);*/
 
 	}
 

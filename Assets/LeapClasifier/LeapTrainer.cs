@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Leap;
+using Leap.Unity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Collections.Generic;
  */
 public class LeapTrainer : MonoBehaviour {
 
-	public HandController handController;
+	public LeapServiceProvider serviceProvider;
 
 	/**
 	 * Events Adapted to C#
@@ -104,7 +105,7 @@ public class LeapTrainer : MonoBehaviour {
 		/*
 		 * Getting Leap.Controller reference from the hand controller.
 		 */
-		this.controller = handController.GetLeapController ();
+		this.controller = serviceProvider.GetLeapController();
 
 		/*
 		 * The bindFrameListener attaches a function to the leap controller frame event below.
@@ -119,7 +120,7 @@ public class LeapTrainer : MonoBehaviour {
 		time = Time.time;
 	}
 
-	private class TrainerListener : Listener {
+	private class TrainerListener {
 
 		private LeapTrainer lt;
 		private Controller c;
@@ -127,16 +128,16 @@ public class LeapTrainer : MonoBehaviour {
 		public TrainerListener(LeapTrainer lt, Controller c){
 			this.lt = lt;
 			this.c = c;
-			c.AddListener(this);
+            c.FrameReady += OnFrame;
 		}
 
 		public void Release(){
-			c.RemoveListener (this);
+            c.FrameReady += OnFrame;
 		}
 
-		public override void OnFrame (Controller arg0)
+        public void OnFrame(object sender, FrameEventArgs e)
 		{
-			lt.onFrame (arg0.Frame ());
+			lt.onFrame (e.frame);
 		}
 
 	}
